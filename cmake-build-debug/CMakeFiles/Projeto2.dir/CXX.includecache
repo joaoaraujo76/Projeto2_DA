@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Lenovo/Desktop/DA/Projeto2/include/Graph.h
+vector
+-
+list
+-
+queue
+-
+iostream
+-
+
+C:/Users/Lenovo/Desktop/DA/Projeto2/main.cpp
+iostream
+-
+include/graph.h
+C:/Users/Lenovo/Desktop/DA/Projeto2/include/Graph.h
+fstream
+-
+
