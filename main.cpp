@@ -1,6 +1,8 @@
 #include <iostream>
-#include "include/graph.h"
+#include "include/Graph.h"
 #include <fstream>
+
+using namespace std;
 
 int main() {
     ifstream myfile;

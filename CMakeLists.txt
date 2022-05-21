@@ -3,5 +3,5 @@ project(Projeto2)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Projeto2 main.cpp src/graph.cpp)
-set(Headers include/graph.h)
+set(Headers include/Graph.h)
+add_executable(Projeto2 main.cpp src/Graph.cpp)
