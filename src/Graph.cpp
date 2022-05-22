@@ -3,10 +3,10 @@
 Graph::Graph(int num, bool dir) : n(num), hasDir(dir), nodes(num+1) {
 }
 
-void Graph::addEdge(int src, int dest, int capacidade, int horas) {
+void Graph::addEdge(int src, int dest, int capacity, int hours) {
     if (src<1 || src>n || dest<1 || dest>n) return;
-    nodes[src].adj.push_back({dest, capacidade,horas});
-    if (!hasDir) nodes[dest].adj.push_back({src, capacidade,horas});
+    nodes[src].adj.push_back({dest, capacity,hours});
+    if (!hasDir) nodes[dest].adj.push_back({src, capacity,hours});
 }
 
 void Graph::dfs(int v) {
@@ -36,8 +36,8 @@ void Graph::bfs(int v) {
 }
 
 
-vector<Graph::Node> Graph::getnodes(){
-    return nodes;
+int Graph::numNodes() {
+    return n;
 }
 
 

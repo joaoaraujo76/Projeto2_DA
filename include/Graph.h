@@ -5,13 +5,13 @@
 #include <list>
 #include <queue>
 #include <iostream>
-
+#define INF (INT_MAX/2)
 using namespace std;
 
 class Graph {
     struct Edge {
         int dest;   // Destination node
-        int capacidade; // An integer capacidade
+        int cap;
         int horas;
     };
 
@@ -19,13 +19,14 @@ class Graph {
         list<Edge> adj; // The list of outgoing edges (to adjacent nodes)
         bool visited;   // As the node been visited on a search?
         int distance;
+        int capacity;
+        int parent;
     };
-
-    int n;              // Graph size (vertices are numbered from 1 to n)
+    int n;
     bool hasDir;        // false: undirect; true: directed
-    vector<Node> nodes; // The list of nodes being represented
 
 public:
+    vector<Node> nodes; // The list of nodes being represented
     // Constructor: nr nodes and direction (default: undirected)
     Graph(int nodes, bool dir = false);
 
@@ -35,11 +36,10 @@ public:
     // Depth-First Search: example implementation
     void dfs(int v);
 
-    vector<Node>getnodes();
-
     // Breadth-First Search: example implementation
     void bfs(int v);
 
+    int numNodes();
 };
 
 #endif
