@@ -5,6 +5,8 @@
 #include <list>
 #include <queue>
 #include <iostream>
+#include <climits>
+
 #define INF (INT_MAX/2)
 using namespace std;
 

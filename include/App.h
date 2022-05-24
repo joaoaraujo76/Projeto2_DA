@@ -2,6 +2,7 @@
 #define PROJETO2_DA_APP_H
 
 #include <string>
+#include <algorithm>
 #include <stack>
 #include <sstream>
 #include "Graph.h"
