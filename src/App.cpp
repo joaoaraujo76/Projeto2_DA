@@ -105,6 +105,8 @@ void App::setGraph(string graphName) {
 
 
 int App::maximumCapacityPath(int source, int destination) {
+    if(source > graph.getNumNodes() || destination > graph.getNumNodes() || source < 1 || destination < 1)
+        return -1;
     MaxHeap<int,int>q(graph.getNumNodes(),-1);
     for(int i = 1; i <= graph.getNumNodes(); i++){
         graph.nodes[i].capacity = INF * -1;

@@ -78,17 +78,22 @@ void FirstScenarioMenu::display(){
 Menu *FirstScenarioMenu::nextMenu() {
     switch (readInt()) {
         case 1:{
+            int capacity;
+            bool condition = true;
             do{
                 cout << "Please insert the source station: ";
                 source = readInt();
                 cout << "Please insert the destination station: ";
                 destination = readInt();
                 if(source == destination){
-                    cout << "Stations must be different: " << endl;
+                    cout << "Stations must be different: " << endl << endl;
                     source = 0; destination = 0;
                 }
-            } while (source < 1 && destination < 1);
-            cout << "Maximum capacity: " << app.maximumCapacityPath(source, destination) << endl;
+                condition = ((capacity = app.maximumCapacityPath(source, destination)) == -1);
+                if(condition)
+                    cout << "Insert valid Station numbers" << endl;
+            } while (condition);
+            cout << "Maximum capacity: " << capacity << endl;
             waitForKey();
             return this;
         }
