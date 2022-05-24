@@ -25,8 +25,8 @@ void App::readData() {
 }
 
 
-void App::readSettings() {
-    /*fstream settingsFile;
+/*void App::readSettings() {
+    fstream settingsFile;
     createFile(&settingsFile, SETSFILE);
     if (emptyFile(&settingsFile, SETSFILE)) {
         settingsFile << "work time (hours) -10" << endl;
@@ -41,19 +41,19 @@ void App::readSettings() {
     getline(file,line, '-');
     file >> maxExpressDuration;
     setMaxExpressDuration(maxExpressDuration);
-    file.close();*/
-}
+    file.close();
+}*/
 
-void App::writeSettings() {
-    /*fstream settingsFile;
+/*void App::writeSettings() {
+    fstream settingsFile;
     clearFile(&settingsFile,SETSFILE);
     settingsFile << "work time (hours) -" << workTime / 3600 << endl;
     settingsFile << "max express delivery duration (minutes) -" << maxExpressDuration / 60 << endl;
-    settingsFile.close();*/
-}
+    settingsFile.close();
+}*/
 
-bool App::createFile(std::fstream *file, int FILE_NUM) {
-    /*bool created = false;
+/*bool App::createFile(std::fstream *file, int FILE_NUM) {
+    bool created = false;
     file->open(dataFolder + filesname[FILE_NUM]);
     if(!file->is_open()){
         fstream newFile(dataFolder + filesname[FILE_NUM]);
@@ -66,11 +66,11 @@ bool App::createFile(std::fstream *file, int FILE_NUM) {
         }
     }
     file->close();
-    return created;*/
-}
+    return created;
+}*/
 
-bool App::clearFile(std::fstream *file, int FILE_NUM) {
-    /*bool exists = true;
+/*bool App::clearFile(std::fstream *file, int FILE_NUM) {
+    bool exists = true;
     file->open(dataFolder + filesname[FILE_NUM], ofstream::out | ofstream::trunc);
     if(!file->is_open()){
         fstream newFile(dataFolder + filesname[FILE_NUM]);
@@ -82,17 +82,17 @@ bool App::clearFile(std::fstream *file, int FILE_NUM) {
             exit(1);
         }
     }
-    return exists;*/
-}
+    return exists;
+}*/
 
-bool App::emptyFile(fstream *file, const int FILE_NUM) {
-    /*file->open(dataFolder + filesname[FILE_NUM]);
+/*bool App::emptyFile(fstream *file, const int FILE_NUM) {
+    file->open(dataFolder + filesname[FILE_NUM]);
     file->seekg(0, ios::end);
     if (file->tellg() == 0) {
         return true;
     }
-    return false;*/
-}
+    return false;
+}*/
 
 string App::getGraph() {
     return currGraph;
