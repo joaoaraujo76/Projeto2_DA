@@ -1,6 +1,3 @@
-// AED 2021/2022 - Aula Pratica 10
-// Pedro Ribeiro (DCC/FCUP) [09/01/2022]
-
 #ifndef _MAXHEAP_H_
 #define _MAXHEAP_H_
 
@@ -36,7 +33,7 @@ public:
     int getSize();              // Return number of elements in the heap
     bool hasKey(const K& key);  // Heap has key?
     void insert(const K& key, const V& value);      // Insert (key, value) on the heap
-    void decreaseKey(const K& key, const V& value); // Decrease value of key
+    void increaseKey(const K& key, const V& value); // Decrease value of key
     K removeMax(); // remove and return key with smaller value
 };
 
@@ -102,10 +99,10 @@ void MaxHeap<K,V>::insert(const K& key, const V& value) {
 
 // Decrease value of key to the indicated value
 template <class K, class V>
-void MaxHeap<K,V>::decreaseKey(const K& key, const V& value) {
+void MaxHeap<K,V>::increaseKey(const K& key, const V& value) {
     if (!hasKey(key)) return; // key does not exist, do nothing
     int i = pos[key];
-    if (value > a[i].value) return; // value would increase, do nothing
+    if (value < a[i].value) return; // value would increase, do nothing
     a[i].value = value;
     upHeap(i);
 }

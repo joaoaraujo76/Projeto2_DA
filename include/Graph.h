@@ -22,13 +22,13 @@ class Graph {
         int capacity;
         int parent;
     };
-    int n;
     bool hasDir;        // false: undirect; true: directed
+    int n;
 
 public:
     vector<Node> nodes; // The list of nodes being represented
     // Constructor: nr nodes and direction (default: undirected)
-    Graph(int nodes, bool dir = false);
+    explicit Graph(int num = 0, bool dir = false);
 
     // Add edge from source to destination with a certain weight
     void addEdge(int src, int dest, int capacidade, int horas);
@@ -39,7 +39,9 @@ public:
     // Breadth-First Search: example implementation
     void bfs(int v);
 
-    int numNodes();
+    int getNumNodes();
+
+    void clear(int nodesNum, bool dir = false);
 };
 
 #endif

@@ -36,8 +36,16 @@ void Graph::bfs(int v) {
 }
 
 
-int Graph::numNodes() {
+int Graph::getNumNodes() {
     return n;
+}
+
+void Graph::clear(int nodesNum, bool dir) {
+    n = nodesNum;
+    hasDir = dir;
+    nodes.resize(nodesNum + 1);
+    nodes.clear();
+    nodes[nodesNum + 1];
 }
 
 
