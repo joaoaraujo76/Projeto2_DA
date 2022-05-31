@@ -11,6 +11,7 @@
 using namespace std;
 
 class Graph {
+public:
     struct Edge {
         int dest;   // Destination node
         int cap;
@@ -23,6 +24,11 @@ class Graph {
         int distance;
         int capacity;
         int parent;
+        int LF;
+        int LS;
+        int ES;
+        int eDegree;
+        int sDegree;
     };
     bool hasDir;        // false: undirect; true: directed
     int n;

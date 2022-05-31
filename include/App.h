@@ -69,7 +69,10 @@ public:
     std::string getGraph();
     void setGraph(std::string graphName);
     int maximumCapacityPath(int source, int destination); // SCENARIO 1.1
+    void latestFinish(Graph &graph);
+
     std::vector<int> getPath(int source, int destiny);
+    int edmundsAlgorithmEarliestStart(Graph &graph);
 };
 
 #endif //PROJETO2_DA_APP_H

@@ -149,3 +149,43 @@ vector<int> App::getPath(int source, int destination) {
     reverse(stops.begin(), stops.end());
     return stops;
 }
+
+int App::edmundsAlgorithmEarliestStart(Graph &graph){
+    int minDuration = 0;
+    MaxHeap<int,int>q(graph.getNumNodes(),-1);
+    for(int i = 1; i <= graph.getNumNodes(); i++){
+        graph.nodes[i].ES = 0;
+        graph.nodes[i].parent = 0;
+        graph.nodes[i].eDegree = 0;
+        for (auto e : graph.nodes[i].adj){
+            graph.nodes[e.dest].eDegree += 1;
+        }
+    }
+    for(int i = 1; i <= graph.getNumNodes(); i++){
+        q.insert(i,graph.nodes[i]);
+    }
+    return minDuration;
+}
+
+void App::latestFinish(Graph &graph) {
+    int minDuration = edmundsAlgorithmEarliestStart(graph);
+    for(int i = 1; i <= graph.getNumNodes(); i++){
+        graph.nodes[i].LF = minDuration;
+        graph.nodes[i].sDegree = 0;
+    }
+
+    for(int i = 1; i <= graph.getNumNodes(); i++){
+        for(Graph::Edge w : graph.nodes[i].adj){
+            graph.nodes[w.dest].sDegree += 1;
+        }
+    }
+
+    Graph transposed = graph;
+    vector<Graph::Node> nodes;
+    int aux;
+    for(int i = 1; i <= transposed.getNumNodes(); i++){
+        for(auto w : transposed.nodes[i].adj){
+
+        }
+    }
+}
