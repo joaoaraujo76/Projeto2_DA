@@ -72,7 +72,7 @@ public:
     void latestFinish(Graph &graph);
 
     std::vector<int> getPath(int source, int destiny);
-    int edmundsAlgorithmEarliestStart(Graph &graph);
+    int earliestStart(Graph &graph);
 };
 
 #endif //PROJETO2_DA_APP_H

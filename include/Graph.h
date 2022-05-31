@@ -33,8 +33,7 @@ public:
     bool hasDir;        // false: undirect; true: directed
     int n;
 
-public:
-    vector<Node> nodes; // The list of nodes being represented
+    vector<Node> nodes = {{}}; // The list of nodes being represented
     // Constructor: nr nodes and direction (default: undirected)
     explicit Graph(int num = 0, bool dir = false);
 

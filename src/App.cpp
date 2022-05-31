@@ -1,4 +1,5 @@
 #include <fstream>
+#include <queue>
 #include "../include/App.h"
 
 using namespace std;
@@ -150,25 +151,45 @@ vector<int> App::getPath(int source, int destination) {
     return stops;
 }
 
-int App::edmundsAlgorithmEarliestStart(Graph &graph){
-    int minDuration = 0;
-    MaxHeap<int,int>q(graph.getNumNodes(),-1);
+int App::earliestStart(Graph &graph){
+    int minDuration = -1;
+    int vf = 0;
+    queue<int> S;
     for(int i = 1; i <= graph.getNumNodes(); i++){
         graph.nodes[i].ES = 0;
         graph.nodes[i].parent = 0;
         graph.nodes[i].eDegree = 0;
-        for (auto e : graph.nodes[i].adj){
+    }
+    for(int i = 1; i <= graph.getNumNodes(); i++){
+        for (Graph::Edge e : graph.nodes[i].adj){
             graph.nodes[e.dest].eDegree += 1;
         }
     }
     for(int i = 1; i <= graph.getNumNodes(); i++){
-        q.insert(i,graph.nodes[i]);
+        if(graph.nodes[i].eDegree == 0) S.push(i);
+    }
+    while (!S.empty()){
+        int v = S.front();
+        S.pop();
+        if (minDuration < graph.nodes[v].ES){
+            minDuration = graph.nodes[v].ES;
+            vf = v;
+        }
+        for (auto w : graph.nodes[v].adj){
+            if (graph.nodes[w.dest].ES < graph.nodes[v].ES + w.horas){
+                graph.nodes[w.dest].ES = graph.nodes[v].ES + w.horas;
+                graph.nodes[w.dest].parent = v;
+            }
+            graph.nodes[w.dest].eDegree = graph.nodes[w.dest].eDegree - 1;
+            if (graph.nodes[w.dest].eDegree == 0)
+                S.push(w.dest);
+        }
     }
     return minDuration;
 }
 
 void App::latestFinish(Graph &graph) {
-    int minDuration = edmundsAlgorithmEarliestStart(graph);
+    int minDuration = earliestStart(graph);
     for(int i = 1; i <= graph.getNumNodes(); i++){
         graph.nodes[i].LF = minDuration;
         graph.nodes[i].sDegree = 0;
