@@ -151,7 +151,7 @@ vector<int> App::getPath(int source, int destination) {
     return stops;
 }
 
-int App::earliestStart(Graph &graph){
+pair<int, vector<Graph::Node>> App::earliestStart(Graph &graph){
     int minDuration = -1;
     int vf = 0;
     queue<int> S;
@@ -168,6 +168,7 @@ int App::earliestStart(Graph &graph){
     for(int i = 1; i <= graph.getNumNodes(); i++){
         if(graph.nodes[i].eDegree == 0) S.push(i);
     }
+
     while (!S.empty()){
         int v = S.front();
         S.pop();
@@ -185,28 +186,88 @@ int App::earliestStart(Graph &graph){
                 S.push(w.dest);
         }
     }
-    return minDuration;
+    cout << "Min duration (scenario 2.4): " << minDuration << endl;
+    return make_pair(minDuration, graph.nodes);
 }
 
 void App::latestFinish(Graph &graph) {
-    int minDuration = earliestStart(graph);
-    for(int i = 1; i <= graph.getNumNodes(); i++){
-        graph.nodes[i].LF = minDuration;
-        graph.nodes[i].sDegree = 0;
-    }
+    //pair<int, vector<string>>
+    queue<int> S;
+    pair<int, vector<Graph::Node>> eS = earliestStart(graph);
+    vector<int> stations;
+    int minDuration = eS.first;
+
+    Graph transposed = graph.transpose();
+
+    vector<int> wait(transposed.getNumNodes()-1,0);
 
     for(int i = 1; i <= graph.getNumNodes(); i++){
-        for(Graph::Edge w : graph.nodes[i].adj){
-            graph.nodes[w.dest].sDegree += 1;
+        for(auto w : graph.nodes[i].adj){
+            transposed.addEdge(w.dest,i,w.cap,w.horas);
         }
     }
 
-    Graph transposed = graph;
-    vector<Graph::Node> nodes;
-    int aux;
     for(int i = 1; i <= transposed.getNumNodes(); i++){
-        for(auto w : transposed.nodes[i].adj){
+        transposed.nodes[i].LF = minDuration;
+        transposed.nodes[i].sDegree = 0;
+    }
+
+    for(int i = 1; i <= transposed.getNumNodes(); i++){
+        for(Graph::Edge w : transposed.nodes[i].adj){
+            transposed.nodes[w.dest].sDegree += 1;
+        }
+    }
+
+    for (int i = 1; i <= transposed.getNumNodes(); i++) {
+        if(transposed.nodes[i].sDegree == 0)
+            S.push(i);
+    }
+    int v;
+    while(!S.empty()){
+        v = S.front();
+        S.pop();
+        for(auto w : transposed.nodes[v].adj){
+            if(transposed.nodes[w.dest].LF > transposed.nodes[v].LF - w.horas){
+                transposed.nodes[w.dest].LF = transposed.nodes[v].LF - w.horas;
+            }
+            transposed.nodes[w.dest].sDegree = transposed.nodes[w.dest].sDegree - 1;
+            if (transposed.nodes[w.dest].sDegree == 0)
+                S.push(w.dest);
 
         }
+    }
+    for(int i = 1; i <= transposed.getNumNodes(); i++){
+        wait[i] = transposed.nodes[i].LF - eS.second[i].ES;
+    }
+
+    int maxWait;
+    for(int i : wait){
+        if(maxWait < i)
+            maxWait = i;
+    }
+    for(int i = 1; i < wait.size(); i++){
+        if(wait[i] == maxWait){
+            stations.push_back(i);
+        }
+    }
+
+    /*for(int i = 1; i <= transposed.getNumNodes(); i++){
+        cout << i << " LF " << transposed.nodes[i].LF << endl;
+    }
+    cout << endl;
+    for(int i = 1; i <= transposed.getNumNodes(); i++){
+        cout << i << " ES " << eS.second[i].ES << endl;
+    }
+
+    for(int i = 0; i < wait.size(); i++){
+        cout << "wait " << i << " " << wait[i] << endl;
+    }*/
+
+    cout << "Max time people have to wait: " << maxWait << endl;
+    cout << "That happens in " << stations.size() << " stations" << endl;
+    if(!stations.empty()){
+        cout << "Stations nr: ";
+        for(int i : stations)
+            cout << i << " ";
     }
 }

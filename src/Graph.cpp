@@ -48,4 +48,14 @@ void Graph::clear(int nodesNum, bool dir) {
     nodes[nodesNum + 1];
 }
 
+Graph Graph::transpose() {
+    Graph transposed(n, hasDir);
+    for(int i = 1; i <= getNumNodes(); i++){
+        for(auto w : nodes[i].adj){
+            transposed.addEdge(w.dest,i,w.cap,w.horas);
+        }
+    }
+    return transposed;
+}
+
 

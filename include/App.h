@@ -8,6 +8,7 @@
 #include "Graph.h"
 #include "MaxHeap.h"
 #include <vector>
+#include <queue>
 
 
 /**
@@ -69,10 +70,10 @@ public:
     std::string getGraph();
     void setGraph(std::string graphName);
     int maximumCapacityPath(int source, int destination); // SCENARIO 1.1
+    pair<int, vector<Graph::Node>> earliestStart(Graph &graph);
     void latestFinish(Graph &graph);
 
     std::vector<int> getPath(int source, int destiny);
-    int earliestStart(Graph &graph);
 };
 
 #endif //PROJETO2_DA_APP_H

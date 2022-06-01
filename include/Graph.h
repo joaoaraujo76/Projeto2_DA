@@ -25,7 +25,6 @@ public:
         int capacity;
         int parent;
         int LF;
-        int LS;
         int ES;
         int eDegree;
         int sDegree;
@@ -49,6 +48,8 @@ public:
     int getNumNodes();
 
     void clear(int nodesNum, bool dir = false);
+
+    Graph transpose();
 };
 
 #endif
