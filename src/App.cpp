@@ -187,7 +187,7 @@ pair<int, vector<Graph::Node>> App::earliestStart(Graph &graph){
         }
     }
     cout << "Min duration (scenario 2.4): " << minDuration << endl;
-    return make_pair(minDuration, graph.nodes);
+    return {minDuration, graph.nodes};
 }
 
 void App::latestFinish(Graph &graph) {
@@ -199,13 +199,13 @@ void App::latestFinish(Graph &graph) {
 
     Graph transposed = graph.transpose();
 
-    vector<int> wait(transposed.getNumNodes()-1,0);
+    vector<int> wait(transposed.getNumNodes()+1,0);
 
-    for(int i = 1; i <= graph.getNumNodes(); i++){
+    /*for(int i = 1; i <= graph.getNumNodes(); i++){
         for(auto w : graph.nodes[i].adj){
             transposed.addEdge(w.dest,i,w.cap,w.horas);
         }
-    }
+    }*/
 
     for(int i = 1; i <= transposed.getNumNodes(); i++){
         transposed.nodes[i].LF = minDuration;
@@ -237,31 +237,35 @@ void App::latestFinish(Graph &graph) {
         }
     }
     for(int i = 1; i <= transposed.getNumNodes(); i++){
-        wait[i] = transposed.nodes[i].LF - eS.second[i].ES;
+        for (auto e : eS.second[i].adj){
+            int newMax = eS.second[e.dest].ES - eS.second[i].ES - e.horas;
+            if(wait[e.dest] < newMax)
+                wait[e.dest] = newMax;
+        }
     }
 
-    int maxWait;
+    int maxWait = INT_MIN;
     for(int i : wait){
-        if(maxWait < i)
-            maxWait = i;
+        if(maxWait < i) maxWait = i;
     }
-    for(int i = 1; i < wait.size(); i++){
+    for(int i = 1; i <= wait.size(); i++){
         if(wait[i] == maxWait){
             stations.push_back(i);
         }
     }
 
-    /*for(int i = 1; i <= transposed.getNumNodes(); i++){
+    for(int i = 1; i <= transposed.getNumNodes(); i++){
         cout << i << " LF " << transposed.nodes[i].LF << endl;
     }
     cout << endl;
     for(int i = 1; i <= transposed.getNumNodes(); i++){
         cout << i << " ES " << eS.second[i].ES << endl;
     }
+    cout << endl;
 
     for(int i = 0; i < wait.size(); i++){
         cout << "wait " << i << " " << wait[i] << endl;
-    }*/
+    }
 
     cout << "Max time people have to wait: " << maxWait << endl;
     cout << "That happens in " << stations.size() << " stations" << endl;
