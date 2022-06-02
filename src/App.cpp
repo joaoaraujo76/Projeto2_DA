@@ -110,33 +110,26 @@ int App::maximumCapacityPath(int source, int destination) {
         return -1;
     MaxHeap<int,int>q(graph.getNumNodes(),-1);
     for(int i = 1; i <= graph.getNumNodes(); i++){
-        graph.nodes[i].capacity = INF * -1;
+        graph.nodes[i].maxCap = INF * -1;
         graph.nodes[i].parent = 0;
-        q.insert(i,graph.nodes[i].capacity);
+        q.insert(i,graph.nodes[i].maxCap);
     }
-    graph.nodes[source].capacity = INF;
+    graph.nodes[source].maxCap = INF;
 
     q.increaseKey(source, INF);
 
     int v;
     while(q.getSize() > 0){
         v = q.removeMax();
-        /*cout << "after remove size is " << q.getSize() << "\n";
-        cout << v << endl;*/
         for(auto w : graph.nodes[v].adj){
-            /*cout << "|" << w.dest << "|" << endl;
-            cout << "capacidade do no " << v  << " = " << g.nodes[v].capacity << "\n";
-            cout << "capacidade da aresta até " << w.dest  << " = " << w.cap << "\n";*/
-            if(min(graph.nodes[v].capacity,w.cap) > graph.nodes[w.dest].capacity){
-                //cout << "entrou no if\n";
-                graph.nodes[w.dest].capacity = min(graph.nodes[v].capacity,w.cap);
+            if(min(graph.nodes[v].maxCap, w.cap) > graph.nodes[w.dest].maxCap){
+                graph.nodes[w.dest].maxCap = min(graph.nodes[v].maxCap, w.cap);
                 graph.nodes[w.dest].parent = v;
-                q.increaseKey(w.dest, graph.nodes[w.dest].capacity);
-                //cout << "node " << w.dest << " capacity = " << g.nodes[w.dest].capacity << "\n";
+                q.increaseKey(w.dest, graph.nodes[w.dest].maxCap);
             }
         }
     }
-    return graph.nodes[destination].capacity;
+    return graph.nodes[destination].maxCap;
 }
 
 vector<int> App::getPath(int source, int destination) {
@@ -177,8 +170,8 @@ pair<int, vector<Graph::Node>> App::earliestStart(Graph &graph){
             vf = v;
         }
         for (auto w : graph.nodes[v].adj){
-            if (graph.nodes[w.dest].ES < graph.nodes[v].ES + w.horas){
-                graph.nodes[w.dest].ES = graph.nodes[v].ES + w.horas;
+            if (graph.nodes[w.dest].ES < graph.nodes[v].ES + w.duration){
+                graph.nodes[w.dest].ES = graph.nodes[v].ES + w.duration;
                 graph.nodes[w.dest].parent = v;
             }
             graph.nodes[w.dest].eDegree = graph.nodes[w.dest].eDegree - 1;
@@ -191,22 +184,15 @@ pair<int, vector<Graph::Node>> App::earliestStart(Graph &graph){
 }
 
 void App::latestFinish(Graph &graph) {
-    //pair<int, vector<string>>
     queue<int> S;
     pair<int, vector<Graph::Node>> eS = earliestStart(graph);
     vector<int> stations;
     int minDuration = eS.first;
 
-    Graph transposed = graph.transpose();
+    //Graph transposed = graph.transpose();
+    vector<int> wait(graph.getNumNodes()+1,0);
 
-    vector<int> wait(transposed.getNumNodes()+1,0);
-
-    /*for(int i = 1; i <= graph.getNumNodes(); i++){
-        for(auto w : graph.nodes[i].adj){
-            transposed.addEdge(w.dest,i,w.cap,w.horas);
-        }
-    }*/
-
+    /*
     for(int i = 1; i <= transposed.getNumNodes(); i++){
         transposed.nodes[i].LF = minDuration;
         transposed.nodes[i].sDegree = 0;
@@ -217,7 +203,6 @@ void App::latestFinish(Graph &graph) {
             transposed.nodes[w.dest].sDegree += 1;
         }
     }
-
     for (int i = 1; i <= transposed.getNumNodes(); i++) {
         if(transposed.nodes[i].sDegree == 0)
             S.push(i);
@@ -236,14 +221,15 @@ void App::latestFinish(Graph &graph) {
 
         }
     }
-    for(int i = 1; i <= transposed.getNumNodes(); i++){
+    */
+
+    for(int i = 1; i <= graph.getNumNodes(); i++){
         for (auto e : eS.second[i].adj){
-            int newMax = eS.second[e.dest].ES - eS.second[i].ES - e.horas;
+            int newMax = eS.second[e.dest].ES - eS.second[i].ES - e.duration;
             if(wait[e.dest] < newMax)
                 wait[e.dest] = newMax;
         }
     }
-
     int maxWait = INT_MIN;
     for(int i : wait){
         if(maxWait < i) maxWait = i;
@@ -253,20 +239,6 @@ void App::latestFinish(Graph &graph) {
             stations.push_back(i);
         }
     }
-
-    for(int i = 1; i <= transposed.getNumNodes(); i++){
-        cout << i << " LF " << transposed.nodes[i].LF << endl;
-    }
-    cout << endl;
-    for(int i = 1; i <= transposed.getNumNodes(); i++){
-        cout << i << " ES " << eS.second[i].ES << endl;
-    }
-    cout << endl;
-
-    for(int i = 0; i < wait.size(); i++){
-        cout << "wait " << i << " " << wait[i] << endl;
-    }
-
     cout << "Max time people have to wait: " << maxWait << endl;
     cout << "That happens in " << stations.size() << " stations" << endl;
     if(!stations.empty()){

@@ -15,14 +15,14 @@ public:
     struct Edge {
         int dest;   // Destination node
         int cap;
-        int horas;
+        int duration;
     };
 
     struct Node {
         list<Edge> adj; // The list of outgoing edges (to adjacent nodes)
         bool visited;   // As the node been visited on a search?
         int distance;
-        int capacity;
+        int maxCap;
         int parent;
         int LF;
         int ES;
@@ -47,7 +47,7 @@ public:
 
     int getNumNodes();
 
-    void clear(int nodesNum, bool dir = false);
+    void clear(int nodesNum);
 
     Graph transpose();
 };

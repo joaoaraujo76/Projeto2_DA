@@ -40,9 +40,8 @@ int Graph::getNumNodes() {
     return n;
 }
 
-void Graph::clear(int nodesNum, bool dir) {
+void Graph::clear(int nodesNum) {
     n = nodesNum;
-    hasDir = dir;
     nodes.resize(nodesNum + 1);
     nodes.clear();
     nodes[nodesNum + 1];
@@ -52,7 +51,7 @@ Graph Graph::transpose() {
     Graph transposed(n, hasDir);
     for(int i = 1; i <= getNumNodes(); i++){
         for(auto w : nodes[i].adj){
-            transposed.addEdge(w.dest,i,w.cap,w.horas);
+            transposed.addEdge(w.dest,i,w.cap,w.duration);
         }
     }
     return transposed;
