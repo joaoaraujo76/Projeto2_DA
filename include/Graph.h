@@ -34,10 +34,12 @@ public:
 
     vector<Node> nodes = {{}}; // The list of nodes being represented
     // Constructor: nr nodes and direction (default: undirected)
-    explicit Graph(int num = 0, bool dir = false);
+    explicit Graph(int num = 0, bool dir = true);
 
     // Add edge from source to destination with a certain weight
     void addEdge(int src, int dest, int capacidade, int horas);
+
+    int addNode(int node);
 
     // Depth-First Search: example implementation
     void dfs(int v);
@@ -46,6 +48,8 @@ public:
     void bfs(int v);
 
     int getNumNodes();
+
+    vector<Node> &getNodes();
 
     void clear(int nodesNum);
 

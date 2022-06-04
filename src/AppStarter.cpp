@@ -7,7 +7,7 @@ AppStarter::AppStarter() {
 }
 
 void AppStarter::start() {
-    app.setGraph("10");
+    app.setGraphStr("01");
     while (!menuStack.empty()) {
         menuStack.top()->display();
         Menu *nextMenu = menuStack.top()->nextMenu();

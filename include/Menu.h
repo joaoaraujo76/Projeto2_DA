@@ -54,17 +54,75 @@ public:
 };
 
 class FirstScenarioMenu: public Menu{
-private:
-    int source; int destination;
 public:
     explicit FirstScenarioMenu(App &app);
     void display() override;
     Menu *nextMenu() override;
 };
 
+class Scenario1_1: public Menu{
+    int capacity, source, destination;
+public:
+    explicit Scenario1_1(App &app, int capacity, int source, int destination);
+    void display() override;
+    Menu *nextMenu() override;
+};
+
+class Scenario1_2: public Menu{
+public:
+    explicit Scenario1_2(App &app);
+    void display() override;
+    Menu *nextMenu() override;
+};
+
 class SecondScenarioMenu: public Menu{
+private:
+    int origin, dest, capacity;
+    bool done;
 public:
     explicit SecondScenarioMenu(App &app);
+    void display() override;
+    Menu *nextMenu() override;
+};
+
+class Scenario2_1: public Menu{
+public:
+    explicit Scenario2_1(App &app);
+    void display() override;
+    Menu *nextMenu() override;
+};
+
+
+class Scenario2_2: public Menu{
+public:
+    explicit Scenario2_2(App &app);
+    void display() override;
+    Menu *nextMenu() override;
+};
+
+
+class Scenario2_3: public Menu{
+public:
+    explicit Scenario2_3(App &app);
+    void display() override;
+    Menu *nextMenu() override;
+};
+
+class Scenario2_4: public Menu{
+private:
+    Graph graph;
+public:
+    explicit Scenario2_4(App &app, Graph &graph);
+    void display() override;
+    Menu *nextMenu() override;
+};
+
+class Scenario2_5: public Menu{
+private:
+    Graph graph;
+    pair<int, vector<int>> info;
+public:
+    explicit Scenario2_5(App &app, Graph &graph);
     void display() override;
     Menu *nextMenu() override;
 };

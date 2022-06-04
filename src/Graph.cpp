@@ -57,4 +57,18 @@ Graph Graph::transpose() {
     return transposed;
 }
 
+vector<Graph::Node> &Graph::getNodes() {
+    return nodes;
+}
+
+int Graph::addNode(int node) {
+    int index = (int)nodes.size();
+    for (int i=1; i <= n; i++)
+        if(i==node) return i;
+    Node nd = Node();
+    nodes.push_back(nd);
+    n++;
+    return index;
+}
+
 

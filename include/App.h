@@ -2,6 +2,7 @@
 #define PROJETO2_DA_APP_H
 
 #include <string>
+#include <map>
 #include <algorithm>
 #include <stack>
 #include <sstream>
@@ -21,8 +22,15 @@ private:
     std::string dataName = "in";
     std::string currGraph;
     std::string fileExtension = ".txt";
-    Graph graph;
+    Graph graph = Graph();
     std::vector<int> stops;
+    Graph auxGraph; // for 2.4/2.5
+public:
+    vector<pair<vector<int>, int>> pathsTaken; // for 1.1/1.2
+    pair<map<pair<int,int>, int>, int> pathsMap; // for 2.1-2.5
+    vector<vector<pair<int,int>>> flowGraph; // for 2.1-2.5
+    vector<int> parent; // for 2.1-2.5
+    vector<int> lastPathInfo{0,0,0}; // for 2.1-2.5
 
 public:
     /**
@@ -67,13 +75,20 @@ public:
      * Writes the program actual settings in the settings file
      */
     void writeSettings();
-    std::string getGraph();
-    void setGraph(std::string graphName);
+    std::string getGraphStr();
+    void setGraphStr(std::string graphName);
+    Graph &getGraph();
+    Graph &getAuxGraph();
     int maximumCapacityPath(int source, int destination); // SCENARIO 1.1
     pair<int, vector<Graph::Node>> earliestStart(Graph &graph);
-    void latestFinish(Graph &graph);
+    pair<int, vector<int>> maxWaitTime(Graph &graph);
 
-    std::vector<int> getPath(int source, int destiny);
+    std::vector<int> getPathScenario_1(int source, int destiny);
+    void getPathScenario_2();
+
+    Graph edmondsKarp(int origin, int destination, int size, bool increase, bool findMax);
+
+    bool bfs(vector<vector<pair<int, int>>> flowGraph, int origin, int destination, int parent[], int nodeSize);
 };
 
 #endif //PROJETO2_DA_APP_H

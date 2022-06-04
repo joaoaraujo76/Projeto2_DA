@@ -1,6 +1,9 @@
+#include "../include/App.h"
+
 #include <fstream>
 #include <queue>
-#include "../include/App.h"
+#include <string>
+#include <cstring>
 
 using namespace std;
 
@@ -17,10 +20,18 @@ void App::readData() {
     }
     dataFile >> nodes;
     dataFile >> edges;
-    graph.clear(nodes);
+    graph = Graph();
+    parent.clear();
+    parent.push_back(0);
+    for (int i=1; i<=nodes; i++){
+        graph.addNode(i);
+        parent.push_back(0);
+    }
+
     while (dataFile >> source >> destiny >> capacity >> duration){
-        //cout << "origem " << origem << " destino " << destino << " capacidade " << capacidade <<  " duracao " << duracao << "\n";
+        //cout << "origem " << source << " destino " << destiny << " capacidade " << capacity <<  " duracao " << duration << "\n";
         graph.addEdge(source,destiny,capacity,duration);
+
     }
     dataFile.close();
 }
@@ -95,11 +106,11 @@ void App::readData() {
     return false;
 }*/
 
-string App::getGraph() {
+string App::getGraphStr() {
     return currGraph;
 }
 
-void App::setGraph(string graphName) {
+void App::setGraphStr(string graphName) {
     currGraph = graphName;
     readData();
 }
@@ -129,10 +140,12 @@ int App::maximumCapacityPath(int source, int destination) {
             }
         }
     }
+    if(graph.nodes[destination].maxCap < 0)
+        return -2;
     return graph.nodes[destination].maxCap;
 }
 
-vector<int> App::getPath(int source, int destination) {
+vector<int> App::getPathScenario_1(int source, int destination) {
     stops.clear();
     int final = destination;
     stops.push_back(destination);
@@ -179,49 +192,14 @@ pair<int, vector<Graph::Node>> App::earliestStart(Graph &graph){
                 S.push(w.dest);
         }
     }
-    cout << "Min duration (scenario 2.4): " << minDuration << endl;
     return {minDuration, graph.nodes};
 }
 
-void App::latestFinish(Graph &graph) {
+pair<int, vector<int>> App::maxWaitTime(Graph &graph) {
     queue<int> S;
     pair<int, vector<Graph::Node>> eS = earliestStart(graph);
     vector<int> stations;
-    int minDuration = eS.first;
-
-    //Graph transposed = graph.transpose();
     vector<int> wait(graph.getNumNodes()+1,0);
-
-    /*
-    for(int i = 1; i <= transposed.getNumNodes(); i++){
-        transposed.nodes[i].LF = minDuration;
-        transposed.nodes[i].sDegree = 0;
-    }
-
-    for(int i = 1; i <= transposed.getNumNodes(); i++){
-        for(Graph::Edge w : transposed.nodes[i].adj){
-            transposed.nodes[w.dest].sDegree += 1;
-        }
-    }
-    for (int i = 1; i <= transposed.getNumNodes(); i++) {
-        if(transposed.nodes[i].sDegree == 0)
-            S.push(i);
-    }
-    int v;
-    while(!S.empty()){
-        v = S.front();
-        S.pop();
-        for(auto w : transposed.nodes[v].adj){
-            if(transposed.nodes[w.dest].LF > transposed.nodes[v].LF - w.horas){
-                transposed.nodes[w.dest].LF = transposed.nodes[v].LF - w.horas;
-            }
-            transposed.nodes[w.dest].sDegree = transposed.nodes[w.dest].sDegree - 1;
-            if (transposed.nodes[w.dest].sDegree == 0)
-                S.push(w.dest);
-
-        }
-    }
-    */
 
     for(int i = 1; i <= graph.getNumNodes(); i++){
         for (auto e : eS.second[i].adj){
@@ -234,16 +212,130 @@ void App::latestFinish(Graph &graph) {
     for(int i : wait){
         if(maxWait < i) maxWait = i;
     }
-    for(int i = 1; i <= wait.size(); i++){
-        if(wait[i] == maxWait){
+    for(int i = 1; i <= wait.size(); i++) {
+        if (wait[i] == maxWait) {
             stations.push_back(i);
         }
     }
-    cout << "Max time people have to wait: " << maxWait << endl;
-    cout << "That happens in " << stations.size() << " stations" << endl;
-    if(!stations.empty()){
-        cout << "Stations nr: ";
-        for(int i : stations)
-            cout << i << " ";
+    return {maxWait, stations};
+}
+
+Graph App::edmondsKarp(int origin, int destination, int size, bool increase, bool findMax) {
+
+    if(lastPathInfo[0] == origin && lastPathInfo[1] == destination) {
+        increase = true;
+    }
+
+    vector<Graph::Node> nodes = graph.getNodes();
+    lastPathInfo = {origin, destination, size}; // Update lastPathInfo with new data
+    int u, v, nodeSize = nodes.size();
+    int auxParent[nodeSize];
+    if(!increase) {
+        auxGraph = Graph(0, true);
+        if(!flowGraph.empty()) flowGraph.clear();
+        for (u = 0; u < nodeSize; u++) {
+            if(u > 0) auxGraph.addNode(u);
+            parent.at(u) = 0;
+            vector<pair<int, int>> vec;
+            for (v = 0; v < nodeSize; v++){
+                bool breaker = false;
+                for(auto edge : nodes[u].adj) {
+                    if(edge.dest == v) {
+                        if(breaker) {
+                            vec.back().first +=edge.cap;
+                            continue;
+                        }
+                        else {
+                            vec.emplace_back(edge.cap, edge.duration);
+                            breaker = true;
+                        }
+                    }
+                }
+                if(!breaker) vec.emplace_back(0,0);
+            }
+            flowGraph.push_back(vec);
+        }
+        pathsMap.first.clear();
+        pathsMap.second = 0;
+    }
+    else {
+        for(int i = 0; i < parent.size(); i++) {
+            auxParent[i] = parent.at(i);
+        }
+    }
+    while (bfs(flowGraph, origin, destination, auxParent, nodeSize)) {
+        int path_flow = INT_MAX;
+
+        for (v = destination; v != origin; v = auxParent[v]) {
+            u = auxParent[v];
+            path_flow = min(path_flow, flowGraph[u][v].first);
+        }
+        for (v = destination; v != origin; v = auxParent[v]) {
+            u = auxParent[v];
+            flowGraph[u][v].first -= path_flow;
+            flowGraph[v][u].first += path_flow;
+            if(pathsMap.first.find(make_pair(u, v)) == pathsMap.first.end()) {
+                pathsMap.first.insert(pair<pair<int,int>, int> (make_pair(u, v), path_flow));
+                auxGraph.addEdge(u,v, 1, flowGraph[u][v].second);
+            }
+            else {
+                pathsMap.first.find(make_pair(u, v))->second += path_flow;
+            }
+        }
+        pathsMap.second += path_flow;
+        if(findMax);
+        else if(pathsMap.second >= size) break;
+    }
+    for(int i = 1; i < nodeSize; i++) {
+        parent.at(i) = auxParent[i];
+    }
+    if(findMax) {
+        lastPathInfo = {origin, destination, pathsMap.second}; // Update lastPathInfo with new data
+    }
+
+    return auxGraph;
+}
+
+bool App::bfs(vector<vector<pair<int, int>>> flowGraph, int origin, int destination, int *parent, int nodeSize) {
+    bool visited[nodeSize];
+    memset(visited, 0, sizeof(visited));
+
+    queue<int> q;
+    q.push(origin);
+    visited[origin] = true;
+    parent[origin] = -1;
+
+    // Standard bfs loop
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+
+        for (int v = 0; v < nodeSize; v++) {
+            if (visited[v] == false && flowGraph[u][v].first > 0) {
+                if (v == destination) {
+                    parent[v] = u;
+                    return true;
+                }
+                q.push(v);
+                parent[v] = u;
+                visited[v] = true;
+            }
+        }
+    }
+    // We didn'destination reach the destination so we return false
+    return false;
+}
+
+Graph &App::getGraph() {
+    return graph;
+}
+
+Graph &App::getAuxGraph() {
+    return auxGraph;
+}
+
+void App::getPathScenario_2() {
+    for(auto m : pathsMap.first) {
+        cout << m.first.first << " -> " << m.first.second << endl;
     }
 }

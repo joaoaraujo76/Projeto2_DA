@@ -1,14 +1,13 @@
 #include "include/Appstarter.h"
 
-/*int main() {
+int main() {
     AppStarter app;
     app.start();
     return 0;
-}*/
+}
 
+/*
 int main() {
-    //AppStarter app;
-    //app.start();
     App app;
     Graph graph(7, true);
     graph.addEdge(1, 2, 0, 5);
@@ -24,3 +23,4 @@ int main() {
     app.latestFinish(graph);
     return 0;
 }
+ */
