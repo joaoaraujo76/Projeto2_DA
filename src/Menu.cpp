@@ -464,7 +464,8 @@ SettingsMenu::SettingsMenu(App &app): Menu(app){}
 void SettingsMenu::display(){
     cout << endl;
     cout << "Settings Menu:" << endl;
-    cout << "1 - Change current DataSet (curr: " << app.getGraphStr() << ")" << endl;
+    cout << "1 - Change current DataSet (current: " << app.getGraphStr() << ")" << endl;
+    cout << "2 - Toggle DataSet type (B type: "<< (app.getGraphType().empty()?"false":"true") << ")" << endl;
     cout << "0 - Exit" << endl;
     cout << endl;
 }
@@ -484,6 +485,12 @@ Menu *SettingsMenu::nextMenu() {
             app.setGraphStr(string(precision, '0').append(to_string(graph)));
             cout << "Done!" << endl;
             waitForKey();
+            return this;
+        }
+        case 2:{
+            app.toggleGraphType();
+            app.readData();
+            cout << "Done!" << endl;
             return this;
         }
         case 0:

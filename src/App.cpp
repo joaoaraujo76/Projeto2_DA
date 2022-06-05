@@ -13,7 +13,7 @@ App::~App() = default;
 void App::readData() {
     ifstream dataFile;
     int nodes, edges, source, destiny, capacity, duration;
-    dataFile.open(dataFolder + dataName + currGraph + fileExtension);
+    dataFile.open(dataFolder + dataName + currGraph + graphType + fileExtension);
     if(!dataFile.is_open()){
         cerr << "Couldn't open " << dataName + currGraph + fileExtension << " file";
         exit(1);
@@ -324,6 +324,13 @@ void App::printPathScenario_2() {
 }
 
 void App::filterPaths1_2() {
+    sort(paretoPaths.begin(), paretoPaths.end(), [](pair<vector<int>, int>&element1, pair<vector<int>, int>&element2){
+        if(element1.second != element2.second) {
+            return element1.second < element2.second;
+        }
+        int weightEle1 = element1.first.size(), weightEle2 = element2.first.size();
+        return weightEle1 > weightEle2;
+    });
     reverse(paretoPaths.begin(), paretoPaths.end());
     int max_c = paretoPaths[0].second + 1, min_path = paretoPaths[0].first.size() + 1;
     int i;
@@ -368,4 +375,12 @@ void App::printPathScenario1_2() {
         }
         cout << endl << endl;
     }
+}
+
+std::string App::getGraphType() {
+    return graphType;
+}
+
+void App::toggleGraphType() {
+    graphType = graphType.empty()?bType:"";
 }

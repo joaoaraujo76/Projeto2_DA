@@ -20,6 +20,8 @@ class App {
 private:
     std::string dataFolder = "../data/";
     std::string dataName = "in";
+    std::string bType = "_b";
+    std::string graphType = "";
     std::string currGraph;
     std::string fileExtension = ".txt";
     std::vector<int> stops; // for 1.1-1.2
@@ -48,6 +50,8 @@ public:
     void readData();
     std::string getGraphStr();
     void setGraphStr(std::string graphName);
+    std::string getGraphType();
+    void toggleGraphType();
     Graph &getGraph();
     Graph &getAuxGraph();
     int maximumCapacityPath(int source, int destination); // SCENARIO 1.1
