@@ -29,82 +29,11 @@ void App::readData() {
     }
 
     while (dataFile >> source >> destiny >> capacity >> duration){
-        //cout << "origem " << source << " destino " << destiny << " capacidade " << capacity <<  " duracao " << duration << "\n";
         graph.addEdge(source,destiny,capacity,duration);
 
     }
     dataFile.close();
 }
-
-
-/*void App::readSettings() {
-    fstream settingsFile;
-    createFile(&settingsFile, SETSFILE);
-    if (emptyFile(&settingsFile, SETSFILE)) {
-        settingsFile << "work time (hours) -10" << endl;
-        settingsFile << "max express delivery duration (minutes) -4" << endl;
-        settingsFile.close();
-    }
-    ifstream file(dataFolder + filesname[3]);
-    string line;
-    getline(file,line, '-');
-    file >> workTime;
-    setWorkingTime(workTime);
-    getline(file,line, '-');
-    file >> maxExpressDuration;
-    setMaxExpressDuration(maxExpressDuration);
-    file.close();
-}*/
-
-/*void App::writeSettings() {
-    fstream settingsFile;
-    clearFile(&settingsFile,SETSFILE);
-    settingsFile << "work time (hours) -" << workTime / 3600 << endl;
-    settingsFile << "max express delivery duration (minutes) -" << maxExpressDuration / 60 << endl;
-    settingsFile.close();
-}*/
-
-/*bool App::createFile(std::fstream *file, int FILE_NUM) {
-    bool created = false;
-    file->open(dataFolder + filesname[FILE_NUM]);
-    if(!file->is_open()){
-        fstream newFile(dataFolder + filesname[FILE_NUM]);
-        file = &newFile;
-        newFile.open(dataFolder + filesname[FILE_NUM], ios::app);
-        created = true;
-        if (!newFile.is_open()) {
-            cerr << "Unable to open file";
-            exit(1);
-        }
-    }
-    file->close();
-    return created;
-}*/
-
-/*bool App::clearFile(std::fstream *file, int FILE_NUM) {
-    bool exists = true;
-    file->open(dataFolder + filesname[FILE_NUM], ofstream::out | ofstream::trunc);
-    if(!file->is_open()){
-        fstream newFile(dataFolder + filesname[FILE_NUM]);
-        file = &newFile;
-        newFile.open(dataFolder + filesname[FILE_NUM], ofstream::out | ofstream::trunc);
-        exists = false;
-        if (!newFile.is_open()) {
-            cerr << "Unable to open file";
-            exit(1);
-        }
-    }
-    return exists;
-}*/
-
-/*bool App::emptyFile(fstream *file, const int FILE_NUM) {
-    file->open(dataFolder + filesname[FILE_NUM]);
-    file->seekg(0, ios::end);
-    if (file->tellg() == 0) {
-        return true;
-    }
-    return false;
-}*/
 
 string App::getGraphStr() {
     return currGraph;
@@ -220,21 +149,21 @@ pair<int, vector<int>> App::maxWaitTime(Graph &graph) {
     return {maxWait, stations};
 }
 
-Graph App::edmondsKarp(int origin, int destination, int size, bool increase, bool findMax) {
+Graph App::edmondsKarp2(int origin, int dest, int size, bool increase, bool findMax) {
 
-    if(lastPathInfo[0] == origin && lastPathInfo[1] == destination) {
+    if(lastPathInfo[0] == origin && lastPathInfo[1] == dest) {
         increase = true;
     }
 
     vector<Graph::Node> nodes = graph.getNodes();
-    lastPathInfo = {origin, destination, size}; // Update lastPathInfo with new data
+    lastPathInfo = {origin, dest, size}; // Update lastPathInfo with new data
     int u, v, nodeSize = nodes.size();
     int auxParent[nodeSize];
     if(!increase) {
-        auxGraph = Graph(0, true);
-        if(!flowGraph.empty()) flowGraph.clear();
+        auxilarGraph = Graph(0, true);
+        if(!capacitiesGraph.empty()) capacitiesGraph.clear();
         for (u = 0; u < nodeSize; u++) {
-            if(u > 0) auxGraph.addNode(u);
+            if(u > 0) auxilarGraph.addNode(u);
             parent.at(u) = 0;
             vector<pair<int, int>> vec;
             for (v = 0; v < nodeSize; v++){
@@ -253,7 +182,7 @@ Graph App::edmondsKarp(int origin, int destination, int size, bool increase, boo
                 }
                 if(!breaker) vec.emplace_back(0,0);
             }
-            flowGraph.push_back(vec);
+            capacitiesGraph.push_back(vec);
         }
         pathsMap.first.clear();
         pathsMap.second = 0;
@@ -263,20 +192,20 @@ Graph App::edmondsKarp(int origin, int destination, int size, bool increase, boo
             auxParent[i] = parent.at(i);
         }
     }
-    while (bfs(flowGraph, origin, destination, auxParent, nodeSize)) {
-        int path_flow = INT_MAX;
+    while (bfs(capacitiesGraph, origin, dest, auxParent, nodeSize)) {
+        int path_flow = INF;
 
-        for (v = destination; v != origin; v = auxParent[v]) {
+        for (v = dest; v != origin; v = auxParent[v]) {
             u = auxParent[v];
-            path_flow = min(path_flow, flowGraph[u][v].first);
+            path_flow = min(path_flow, capacitiesGraph[u][v].first);
         }
-        for (v = destination; v != origin; v = auxParent[v]) {
+        for (v = dest; v != origin; v = auxParent[v]) {
             u = auxParent[v];
-            flowGraph[u][v].first -= path_flow;
-            flowGraph[v][u].first += path_flow;
+            capacitiesGraph[u][v].first -= path_flow;
+            capacitiesGraph[v][u].first += path_flow;
             if(pathsMap.first.find(make_pair(u, v)) == pathsMap.first.end()) {
                 pathsMap.first.insert(pair<pair<int,int>, int> (make_pair(u, v), path_flow));
-                auxGraph.addEdge(u,v, 1, flowGraph[u][v].second);
+                auxilarGraph.addEdge(u, v, 1, capacitiesGraph[u][v].second);
             }
             else {
                 pathsMap.first.find(make_pair(u, v))->second += path_flow;
@@ -290,10 +219,66 @@ Graph App::edmondsKarp(int origin, int destination, int size, bool increase, boo
         parent.at(i) = auxParent[i];
     }
     if(findMax) {
-        lastPathInfo = {origin, destination, pathsMap.second}; // Update lastPathInfo with new data
+        lastPathInfo = {origin, dest, pathsMap.second}; // Update lastPathInfo with new data
     }
 
-    return auxGraph;
+    return auxilarGraph;
+}
+
+
+void App::edmondsKarp1(int origin, int dest) {
+    int u, v, V;
+    vector<Graph::Node> nodes = graph.getNodes();
+    V = nodes.size();
+
+    vector<vector<pair<int, int>>> rGraph;
+
+    for (u = 0; u < V; u++) {
+        if(u > 0) auxilarGraph.addNode(u);
+        parent.at(u) = 0;
+        vector<pair<int, int>> vec;
+        for (v = 0; v < V; v++){
+            bool breaker = false;
+            for(auto edge : nodes[u].adj) {
+                if(edge.dest == v) {
+                    if(breaker) {
+                        vec.back().first +=edge.cap;
+                        vec.back().second +=edge.cap;
+                        continue;
+                    }
+                    else {
+                        vec.emplace_back(edge.cap, edge.cap);
+                        breaker = true;
+                    }
+                }
+            }
+            if(!breaker) vec.emplace_back(0,0);
+        }
+        rGraph.push_back(vec);
+    }
+
+    int auxParent[V];
+    while (bfs(rGraph, origin, dest, auxParent, V)) {
+
+        int path_flow = INF;
+        for (v = dest; v != origin; v = auxParent[v]) {
+            u = auxParent[v];
+            path_flow = min(path_flow, rGraph[u][v].first);
+        }
+
+        pair<vector<int>, int> auxPath;
+        auxPath.second = INF/2;
+        auxPath.first.push_back(dest);
+        for (v = dest; v != origin; v = auxParent[v]) {
+            u = auxParent[v];
+            rGraph[u][v].first -= path_flow;
+            rGraph[v][u].first += path_flow;
+            auxPath.second = min(auxPath.second, rGraph[u][v].second);
+            auxPath.first.push_back(u);
+        }
+        reverse(auxPath.first.begin(), auxPath.first.end());
+        paretoPaths.emplace_back(auxPath);
+    }
 }
 
 bool App::bfs(vector<vector<pair<int, int>>> flowGraph, int origin, int destination, int *parent, int nodeSize) {
@@ -305,7 +290,6 @@ bool App::bfs(vector<vector<pair<int, int>>> flowGraph, int origin, int destinat
     visited[origin] = true;
     parent[origin] = -1;
 
-    // Standard bfs loop
     while (!q.empty()) {
         int u = q.front();
         q.pop();
@@ -322,7 +306,6 @@ bool App::bfs(vector<vector<pair<int, int>>> flowGraph, int origin, int destinat
             }
         }
     }
-    // We didn'destination reach the destination so we return false
     return false;
 }
 
@@ -331,11 +314,58 @@ Graph &App::getGraph() {
 }
 
 Graph &App::getAuxGraph() {
-    return auxGraph;
+    return auxilarGraph;
 }
 
-void App::getPathScenario_2() {
+void App::printPathScenario_2() {
     for(auto m : pathsMap.first) {
         cout << m.first.first << " -> " << m.first.second << endl;
+    }
+}
+
+void App::filterPaths1_2() {
+    reverse(paretoPaths.begin(), paretoPaths.end());
+    int max_c = paretoPaths[0].second + 1, min_path = paretoPaths[0].first.size() + 1;
+    int i;
+    for(i = 0; paretoPaths.at(i) != paretoPaths.back(); ) {
+        if(paretoPaths.at(i).second == max_c) {
+            if(paretoPaths.at(i).first.size() >= min_path) {
+                paretoPaths.erase(paretoPaths.begin() + i);
+                continue;
+            }
+            else
+                min_path = paretoPaths.at(i).first.size();
+        } else {
+            max_c = paretoPaths.at(i).second;
+            if(paretoPaths.at(i).first.size() >= min_path) {
+                paretoPaths.erase(paretoPaths.begin() + i);
+                continue;
+            }
+            else
+                min_path = paretoPaths.at(i).first.size();
+        }
+        i++;
+    }
+
+    if(paretoPaths.back().first.size() >= min_path)
+        paretoPaths.erase(paretoPaths.begin() + i);
+
+    reverse(paretoPaths.begin(), paretoPaths.end());
+}
+
+void App::printPathScenario1_2() {
+    if(paretoPaths.empty()) {
+        cout << "No path available "<<endl;
+    }
+    for(const auto& path : paretoPaths) {
+        cout << "Maximum capacity "<< path.second << ", stops " << path.first.size() << endl;
+        int stopsNum = 1;
+        for(auto stop : path.first) {
+            cout << stop;
+            if(stopsNum == path.first.size()) break;
+            cout << " -> ";
+            stopsNum++;
+        }
+        cout << endl << endl;
     }
 }

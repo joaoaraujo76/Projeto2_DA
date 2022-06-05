@@ -54,6 +54,7 @@ public:
 };
 
 class FirstScenarioMenu: public Menu{
+    int capacity, source, dest;
 public:
     explicit FirstScenarioMenu(App &app);
     void display() override;
@@ -61,9 +62,9 @@ public:
 };
 
 class Scenario1_1: public Menu{
-    int capacity, source, destination;
+    int capacity, source, dest;
 public:
-    explicit Scenario1_1(App &app, int capacity, int source, int destination);
+    explicit Scenario1_1(App &app, int capacity, int source, int dest);
     void display() override;
     Menu *nextMenu() override;
 };
@@ -77,7 +78,7 @@ public:
 
 class SecondScenarioMenu: public Menu{
 private:
-    int origin, dest, capacity;
+    int source, dest, capacity;
     bool done;
 public:
     explicit SecondScenarioMenu(App &app);

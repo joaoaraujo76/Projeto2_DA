@@ -72,7 +72,6 @@ void FirstScenarioMenu::display(){
     cout << "First Scenario Menu:" << endl;
     cout << "1 - Maximize group dimension (1.1)"<< endl;
     cout << "2 - Maximize group dimension and minimize number of bus switches (1.2)"<< endl;
-    cout << "3 - See path"<< endl;
     cout << "0 - Exit" << endl;
     cout << endl;
 }
@@ -80,39 +79,52 @@ void FirstScenarioMenu::display(){
 Menu *FirstScenarioMenu::nextMenu() {
     switch (readInt()) {
         case 1:{
-            int capacity, source, destination;
             do{
                 cout << "Please insert the source station: ";
                 source = readInt();
                 cout << "Please insert the destination station: ";
-                destination = readInt();
-                if(source == destination){
+                dest = readInt();
+                if(source == dest){
                     cout << "Stations must be different: " << endl << endl;
-                    source = 0; destination = 0;
+                    source = 0; dest = 0;
                 }
-                capacity = app.maximumCapacityPath(source, destination);
+                capacity = app.maximumCapacityPath(source, dest);
                 if(capacity == -1)
                     cout << "Insert valid Station numbers" << endl;
                 if (capacity == -2)
                     cout << "No path between source and destination" << endl;
             } while (capacity < 0);
-            return new Scenario1_1(app, capacity, source, destination);
+            return new Scenario1_1(app, capacity, source, dest);
         }
         case 2:{
-            /*if(source == 0 && destination == 0){
-                cout << "Must run any algorithm before!" << endl;
-                return this;
+            bool done = false;
+            while (!done){
+                cout << "Please insert the source station: ";
+                source = readInt();
+                cout << "Please insert the destination station: ";
+                dest = readInt();
+                if(source == dest){
+                    cout << "Stations must be different " << endl << endl;
+                    continue;
+                }
+                if (source <= 0 || source > app.getGraph().getNumNodes() || dest <= 0 || dest > app.getGraph().getNumNodes()) {
+                    cout << "Insert valid Station numbers" << endl;
+                    continue;
+                }
+                app.paretoPaths.clear();
+                app.edmondsKarp1(source, dest);
+                app.maximumCapacityPath(source, dest);
+                vector <int> maxCapPath = app.getPathScenario_1(source, dest);
+                pair<vector<int>, int> pair = {maxCapPath, app.getGraph().getNodes()[dest].maxCap};
+                app.paretoPaths.push_back(pair);
+                app.filterPaths1_2();
+                if (app.paretoPaths.empty()){
+                    cout << "No path between source and destination" << endl;
+                    continue;
+                }
+                done = true;
             }
-            vector<int> stops = app.getPathScenario_1(source, destination);
-            for(int stop = 0; stop < stops.size(); stop++){
-                if(stop == stops.size() -1)
-                    cout << stops[stop];
-                else
-                    cout << stops[stop] << " -> ";
-            }
-            waitForKey();
-             */
-            return this;
+            return new Scenario1_2(app);
         }
         case 0:
             return nullptr;
@@ -121,8 +133,8 @@ Menu *FirstScenarioMenu::nextMenu() {
     }
 }
 
-Scenario1_1::Scenario1_1(App &app, int capacity, int source, int destination) : Menu(app) {
-    this->capacity = capacity; this->source = source; this->destination = destination;
+Scenario1_1::Scenario1_1(App &app, int capacity, int source, int dest) : Menu(app) {
+    this->capacity = capacity; this->source = source; this->dest = dest;
 }
 
 void Scenario1_1::display() {
@@ -139,7 +151,7 @@ void Scenario1_1::display() {
 Menu *Scenario1_1::nextMenu() {
     switch (readInt()) {
         case 1: {
-            vector<int> stops = app.getPathScenario_1(source, destination);
+            vector<int> stops = app.getPathScenario_1(source, dest);
             for(int stop = 0; stop < stops.size(); stop++){
                 if(stop == stops.size() -1)
                     cout << stops[stop];
@@ -164,15 +176,23 @@ void Scenario1_2::display() {
     cout << endl;
     cout << "Scenario 1.2" << endl;
     cout << "1 - View Path"<<endl;
-    cout << "2 - Check when the group will get back together at the destination (at least) (2.4) " << endl;
-    cout << "3 - Check the group's maximum waiting time during the path and when that occurs (2.5) " << endl;
     cout << "0 - Exit";
     cout << endl;
 }
 
 
 Menu *Scenario1_2::nextMenu() {
-    return nullptr;
+    switch (readInt()) {
+        case 1: {
+            app.printPathScenario1_2();
+            waitForKey();
+            return this;
+        }
+        case 0:
+            return nullptr;
+        default:
+            return invalidInput();
+    }
 }
 
 SecondScenarioMenu::SecondScenarioMenu(App &app): Menu(app){}
@@ -181,7 +201,7 @@ void SecondScenarioMenu::display(){
     cout << endl;
     cout << "Second Scenario Menu:" << endl;
     cout << "1 - Path for a group given his dimension (2.1)"<<endl;
-    cout << "2 - Correct a Path for a group to increase its maximum capacity (2.2)"<<endl;
+    cout << "2 - Correct last path in 2.1 given a group size increase (2.2)"<<endl;
     cout << "3 - Check group max dimension (2.3)"<<endl;
     cout << "0 - Exit"<<endl;
     cout << endl;
@@ -192,23 +212,23 @@ Menu *SecondScenarioMenu::nextMenu() {
         case 1:{
             done = false;
             while(!done){
-                cout << "Insert origin ";
-                origin = readInt();
+                cout << "Insert source ";
+                source = readInt();
                 cout << "Insert destination ";
                 dest = readInt();
                 cout << "Insert group size ";
                 capacity = readInt();
-                if (origin == dest) {
-                    cout << "Origin is the same as the destination" << endl;
+                if (source == dest) {
+                    cout << "Source is the same as the destination" << endl;
                     continue;
                 }
-                if (origin <= 0 || origin > app.getGraph().getNumNodes() || dest <= 0 || dest > app.getGraph().getNumNodes()) {
-                    cout << "Origin or destination node aren't in the current graph" << endl;
+                if (source <= 0 || source > app.getGraph().getNumNodes() || dest <= 0 || dest > app.getGraph().getNumNodes()) {
+                    cout << "Source or destination node aren't in the current graph" << endl;
                     continue;
                 }
                 done = true;
             }
-            app.edmondsKarp(origin, dest, capacity, false, false);
+            app.edmondsKarp2(source, dest, capacity, false, false);
             if(app.pathsMap.second < capacity) {
                 cout << "The maximum group size of the path is " << app.pathsMap.second << endl;
                 return this;
@@ -219,25 +239,26 @@ Menu *SecondScenarioMenu::nextMenu() {
             done = false;
             vector<int> lastInputInfo = app.lastPathInfo;
             while(!done) {
-                done = true;
-                origin = lastInputInfo[0];
+                source = lastInputInfo[0];
                 dest = lastInputInfo[1];
                 capacity = lastInputInfo[2];
-                if (origin == 0 || dest == 0) {
+                if (source == 0 || dest == 0) {
                     cout << "No path available to run Scenario 2.2, first run Scenario 2.1" << endl;
                     continue;
                 }
-                cout << "Insert new capacity increase for the path of Scenario 2.1";
+                cout << "Insert group size increase for last the path of Scenario 2.1";
                 int increase = readInt();
-                if ((lastInputInfo[2] + increase) <= app.pathsMap.second) {
-                    cout << "The new capacity is lower or equal than previous maximum capacity, so stills the same path" << endl;
+                if ((capacity + increase) <= app.pathsMap.second) {
+                    cout << "The new group size is lower or equal than previous maximum capacity, so stills the same path" << endl;
                     continue;
                 } else {
-                    app.edmondsKarp(origin, dest, capacity + increase, true, false);
+                    app.edmondsKarp2(source, dest, capacity + increase, true, false);
                 }
-                if (app.pathsMap.second < app.lastPathInfo[2]) {
-                    cout << "The group size is larger than the maximum capacity for this trip" << endl;
+                if (app.lastPathInfo[2] > app.pathsMap.second) {
+                    cout << "The new group size is larger than the maximum capacity for the last trip" << endl;
+                    cout << "Maximum capacity: " << app.pathsMap.second << endl;
                     app.lastPathInfo = lastInputInfo;
+                    return this;
                 }
                 done = true;
             }
@@ -247,21 +268,21 @@ Menu *SecondScenarioMenu::nextMenu() {
         case 3:{
             done = false;
             while(!done) {
-                cout << "Insert origin ";
-                origin = readInt();
+                cout << "Insert source ";
+                source = readInt();
                 cout << "Insert destination ";
                 dest = readInt();
-                if (origin == dest) {
-                    cout << "Origin is the same as the destination" << endl;
+                if (source == dest) {
+                    cout << "Source is the same as the destination" << endl;
                     continue;
                 }
-                if (origin <= 0 || origin > app.getGraph().getNumNodes() || dest <= 0 || dest > app.getGraph().getNumNodes()) {
-                    cout << "Origin or destination node aren't in the current graph" << endl;
+                if (source <= 0 || source > app.getGraph().getNumNodes() || dest <= 0 || dest > app.getGraph().getNumNodes()) {
+                    cout << "Source or destination node aren't in the current graph" << endl;
                     continue;
                 }
                 done = true;
             }
-            app.edmondsKarp(origin, dest, -1, false, true);
+            app.edmondsKarp2(source, dest, -1, false, true);
             cout << "The maximum capacity of the path is " << app.pathsMap.second << endl;
             return new Scenario2_3(app);
         }
@@ -291,7 +312,7 @@ Menu *Scenario2_1::nextMenu() {
     switch (readInt()) {
         case 1:{
             cout << "The path: " << endl;
-            app.getPathScenario_2();
+            app.printPathScenario_2();
             cout << endl;
             waitForKey();
             return this;
@@ -328,7 +349,7 @@ Menu *Scenario2_2::nextMenu() {
     switch (readInt()) {
         case 1:{
             cout << "The path: " << endl;
-            app.getPathScenario_2();
+            app.printPathScenario_2();
             cout << endl;
             waitForKey();
             return this;
@@ -365,7 +386,7 @@ Menu *Scenario2_3::nextMenu() {
     switch (readInt()) {
         case 1:{
             cout << "The path: " << endl;
-            app.getPathScenario_2();
+            app.printPathScenario_2();
             cout << endl;
             waitForKey();
             return this;
