@@ -13,47 +13,60 @@ using namespace std;
 class Graph {
 public:
     struct Edge {
-        int dest;   // Destination node
+        /** Destination node */
+        int dest;
+        /** Capacity of the edge */
         int cap;
+        /** Time spent in the edge */
         int duration;
     };
 
     struct Node {
-        list<Edge> adj; // The list of outgoing edges (to adjacent nodes)
-        bool visited;   // As the node been visited on a search?
-        int distance;
+        /** The list of outgoing edges (to adjacent nodes) */
+        list<Edge> adj;
+        bool visited;
         int maxCap;
         int parent;
-        int LF;
         int ES;
         int eDegree;
-        int sDegree;
     };
-    bool hasDir;        // false: undirect; true: directed
+    /** false: undirect; true: directed */
+    bool hasDir;
+    /** Number of node in the graph */
     int n;
+    /** The list of nodes being represented */
+    vector<Node> nodes = {{}};
 
-    vector<Node> nodes = {{}}; // The list of nodes being represented
-    // Constructor: nr nodes and direction (default: undirected)
+    /**
+     * Constructor of a graph with the number of nodes and direction of the edges
+     * @param num number of the nodes
+     * @param dir true if graph is directed or false otherwise
+     */
     explicit Graph(int num = 0, bool dir = true);
-
-    // Add edge from source to destination with a certain weight
+    /**
+     * Adds an edges to the graph given a source, destination node, maximum capacity for the edge and duration of the trip between nodes
+     * @param src source node
+     * @param dest destination node
+     * @param capacidade maximum capacity for the edge
+     * @param horas duration of the trip between nodes
+     */
     void addEdge(int src, int dest, int capacidade, int horas);
-
+    /**
+     * Adds a node to the graph, matching the node parameter and if already exists just return his index in the nodes vector
+     * @param node node number to be added
+     * @return node index of the node added or the node index if it already exists
+     */
     int addNode(int node);
-
-    // Depth-First Search: example implementation
-    void dfs(int v);
-
-    // Breadth-First Search: example implementation
-    void bfs(int v);
-
+    /**
+     * Get the number of the nodes in the graph
+     * @return n value of the graph
+     */
     int getNumNodes();
-
+    /**
+     * Gets the nodes vector of the graph
+     * @return a reference to the nodes vector of the graph
+     */
     vector<Node> &getNodes();
-
-    void clear(int nodesNum);
-
-    Graph transpose();
 };
 
 #endif

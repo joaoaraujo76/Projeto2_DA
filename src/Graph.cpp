@@ -9,52 +9,8 @@ void Graph::addEdge(int src, int dest, int capacity, int hours) {
     if (!hasDir) nodes[dest].adj.push_back({src, capacity,hours});
 }
 
-void Graph::dfs(int v) {
-    nodes[v].visited=true;
-    for(auto edge : nodes[v].adj){
-        if(!nodes[edge.dest].visited){
-            dfs(edge.dest);
-        }
-    }
-}
-
-void Graph::bfs(int v) {
-    queue<int> q;
-    q.push(v);
-    nodes[v].visited = true;
-    while(q.size() > 0){
-        int u = q.front();
-        q.pop();
-        for(auto e: nodes[u] .adj){
-            int w = e.dest;
-            if(!nodes[w].visited){
-                q.push(w);
-                nodes[w].visited = true;
-            }
-        }
-    }
-}
-
-
 int Graph::getNumNodes() {
     return n;
-}
-
-void Graph::clear(int nodesNum) {
-    n = nodesNum;
-    nodes.resize(nodesNum + 1);
-    nodes.clear();
-    nodes[nodesNum + 1];
-}
-
-Graph Graph::transpose() {
-    Graph transposed(n, hasDir);
-    for(int i = 1; i <= getNumNodes(); i++){
-        for(auto w : nodes[i].adj){
-            transposed.addEdge(w.dest,i,w.cap,w.duration);
-        }
-    }
-    return transposed;
 }
 
 vector<Graph::Node> &Graph::getNodes() {
