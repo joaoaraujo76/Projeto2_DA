@@ -18,7 +18,7 @@
 class App {
 
 private:
-    std::string dataFolder = "../input/";
+    std::string dataFolder = "../../input/";
     std::string dataName = "in";
     std::string bType = "_b";
     std::string graphType = "";
